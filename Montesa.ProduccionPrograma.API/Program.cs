@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Montesa.ProduccionPrograma.API.Data;
+using Montesa.ProduccionPrograma.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 const string MyCors = "FrontLocal";
@@ -19,9 +20,17 @@ builder.Services.AddCors(options =>
 });
 // ---------- fin CORS ----------
 builder.Services.AddControllers();
-//Desde aqui voy a llamar la conexion
+/*Desde aqui voy a llamar la conexion
 builder.Services.AddDbContext<ProduccionDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBConexion")));
+*/
+//Agrega un factory de conexiones para Dapper
+builder.Services.AddSingleton<ISqlConnectionFactory, DapperContext>();
+builder.Services.AddScoped<ICargarProgramaService, CargarProgramaService>();
+builder.Services.AddScoped<IProdProgramaSpRepository, ProdProgramaSpRepository>();
+builder.Services.AddScoped<IProgramaCargaRepository, ProgramaCargaRepository>();
+builder.Services.AddScoped<IAsignacionMaquinaService, AsignacionMaquinaService>();
+
 
 builder.Services.AddHttpClient("API", client =>
 {
@@ -33,7 +42,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<DapperContext>();
-builder.Services.AddScoped<IProduccionRepository, ProduccionRepository>();
+
 
 var app = builder.Build();
 
