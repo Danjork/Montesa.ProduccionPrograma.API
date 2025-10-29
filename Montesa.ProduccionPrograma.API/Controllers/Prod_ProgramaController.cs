@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Montesa.ProduccionPrograma.API.Data;
 using Montesa.ProduccionPrograma.API.Models;
@@ -14,14 +15,31 @@ namespace Montesa.ProduccionPrograma.API.Controllers
     {
         private readonly IProdProgramaSpRepository _spRepo;
         private readonly ICargarProgramaService _cargaService;
+        private readonly DapperContext _ctx;
 
-        public Prod_ProgramaController(IProdProgramaSpRepository spRepo, ICargarProgramaService cargaService, IAsignacionMaquinaService asignacion)
+        public Prod_ProgramaController(IProdProgramaSpRepository spRepo, ICargarProgramaService cargaService, IAsignacionMaquinaService asignacion, DapperContext ctx)
         {
             _spRepo = spRepo;
             _cargaService = cargaService;
             _asignacion = asignacion;
+            _ctx = ctx;
         }
 
+        //Busca todas las op que estan en el programa de produccion
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] int top = 100)
+        {
+            const string sql = @"
+                    select TOP (@top) * 
+                    from dbo.Produccion_Programa
+                    where status = 'N'
+                    order by id Desc";
+            using var db = _ctx.CreateConnection();
+            var rows = await db.QueryAsync<ProdPrograma>(sql, new { top });
+            return Ok(rows);
+        }
+
+        
         [HttpPost("buscar-sp")]
         public async Task<IActionResult> BuscarSp([FromBody] ConsultaFiltro filtro, CancellationToken ct)
             => Ok(await _spRepo.LeerDesdeSpAsync(filtro, ct));
@@ -49,16 +67,7 @@ namespace Montesa.ProduccionPrograma.API.Controllers
 
         private readonly IAsignacionMaquinaService _asignacion;
 
-        //public Prod_ProgramaController(
-        //    IProdProgramaSpRepository spRepo,
-        //    ICargarProgramaService cargaService,
-        //    IAsignacionMaquinaService asignacion)
-        //{
-        //    _spRepo = spRepo;
-        //    _cargaService = cargaService;
-        //    _asignacion = asignacion;
-        //}
-
+    
         [HttpPost("asignar-maquina")]
         public async Task<IActionResult> AsignarMaquina([FromBody] AsignarInput body, CancellationToken ct)
         {

@@ -3,20 +3,16 @@ using Montesa.ProduccionPrograma.API.Data;
 using Montesa.ProduccionPrograma.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-const string MyCors = "FrontLocal";
+const string CorsPolicyName = "AllowViteReact";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(MyCors, policy =>
-    {
-        policy
-            .WithOrigins(
-                "http://localhost:3000",
-                "https://localhost:3000",
-                "http://127.0.0.1:3000")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-        // .AllowCredentials(); // solo si usarás cookies/credenciales
-    });
+  
+    options.AddPolicy("AllowViteReact",
+      b => b
+          .WithOrigins("http://localhost:5173")
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+  );
 });
 // ---------- fin CORS ----------
 builder.Services.AddControllers();
@@ -45,16 +41,14 @@ builder.Services.AddSingleton<DapperContext>();
 
 
 var app = builder.Build();
+app.UseCors(CorsPolicyName);
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
-// CORS debe ir antes de Authorization y antes de MapControllers
-app.UseCors(MyCors);
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
