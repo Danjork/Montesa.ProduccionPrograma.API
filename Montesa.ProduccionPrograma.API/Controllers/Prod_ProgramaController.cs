@@ -16,14 +16,45 @@ namespace Montesa.ProduccionPrograma.API.Controllers
         private readonly IProdProgramaSpRepository _spRepo;
         private readonly ICargarProgramaService _cargaService;
         private readonly DapperContext _ctx;
+        private readonly IProdMaquinaRepository _maquinaRepository;
 
-        public Prod_ProgramaController(IProdProgramaSpRepository spRepo, ICargarProgramaService cargaService, IAsignacionMaquinaService asignacion, DapperContext ctx)
+        public Prod_ProgramaController(IProdProgramaSpRepository spRepo, 
+                                         ICargarProgramaService cargaService, 
+                                         IAsignacionMaquinaService asignacion,
+                                         DapperContext ctx,
+                                         IProdMaquinaRepository maquinaRepository)
         {
             _spRepo = spRepo;
             _cargaService = cargaService;
             _asignacion = asignacion;
             _ctx = ctx;
+            _maquinaRepository = maquinaRepository;
         }
+
+    #region 
+        //REGION ES PARA EL GET DE LA TABLA PRODUCCION_MAQUINA
+
+        [HttpGet("maquinas")]
+        public async Task<ActionResult<IEnumerable<Prod_Maquina>>> GetMaquinas()
+        {
+            var maquinas = await _maquinaRepository.GetAllAsync();
+            return Ok(maquinas); 
+        }
+
+        [HttpGet("maquinas/{id}")]
+        public async Task<ActionResult<IEnumerable<Prod_Maquina>>> GetMaquinas(int id)
+        {
+            var maquina = await _maquinaRepository.GetByIdAsync(id);
+            if (maquina == null)
+                return NotFound();
+            return Ok (maquina);
+        }
+
+
+    #endregion
+
+
+
 
         //Busca todas las op que estan en el programa de produccion
         [HttpGet]
@@ -32,7 +63,7 @@ namespace Montesa.ProduccionPrograma.API.Controllers
             const string sql = @"
                     select TOP (@top) * 
                     from dbo.Produccion_Programa
-                    where status = 'N'
+                    where prioridad = 1
                     order by id Desc";
             using var db = _ctx.CreateConnection();
             var rows = await db.QueryAsync<ProdPrograma>(sql, new { top });

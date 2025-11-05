@@ -17,23 +17,23 @@ namespace Montesa.ProduccionPrograma.API.Services
         }
 
         public async Task<(int affected, string message)> AsignarAsync(
-      string ordNo, int linea, string maquina, short? prioridad, string? usuario, string? equipo, CancellationToken ct = default)
+         string ordNo, int linea, string maquina, short? prioridad, string? usuario, string? equipo, CancellationToken ct = default)
 
         {
             // 1) Traer base desde TU TABLA (última fila por OP+Línea)
             const string sql = @"
-SELECT TOP(1) *
-FROM dbo.Produccion_Programa
-WHERE OP = @op AND Linea = @linea
-ORDER BY id DESC;";
+            SELECT TOP(1) *
+            FROM dbo.Produccion_Programa
+            WHERE OP = @op AND Linea = @linea
+            ORDER BY id DESC;";
 
             using var conn = _factory.CreateConnection();
             var cmd = new CommandDefinition(
-    sql,
-    new { op = ordNo.PadLeft(8, '0'), linea },
-    commandType: CommandType.Text,
-    cancellationToken: ct
-);
+            sql,
+            new { op = ordNo.PadLeft(8, '0'), linea },
+            commandType: CommandType.Text,
+            cancellationToken: ct
+            );
 
             var baseRow = await conn.QuerySingleOrDefaultAsync<ProdPrograma>(cmd);
 

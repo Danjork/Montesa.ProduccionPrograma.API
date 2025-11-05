@@ -26,6 +26,7 @@ builder.Services.AddScoped<ICargarProgramaService, CargarProgramaService>();
 builder.Services.AddScoped<IProdProgramaSpRepository, ProdProgramaSpRepository>();
 builder.Services.AddScoped<IProgramaCargaRepository, ProgramaCargaRepository>();
 builder.Services.AddScoped<IAsignacionMaquinaService, AsignacionMaquinaService>();
+builder.Services.AddScoped<IProdMaquinaRepository, ProdMaquinaRepository>();
 
 
 builder.Services.AddHttpClient("API", client =>
