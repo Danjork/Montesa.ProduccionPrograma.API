@@ -63,7 +63,7 @@ namespace Montesa.ProduccionPrograma.API.Controllers
             const string sql = @"
                     select TOP (@top) * 
                     from dbo.Produccion_Programa
-                    where prioridad = 1
+                    where prioridad = 1 and Status = 'N'
                     order by id Desc";
             using var db = _ctx.CreateConnection();
             var rows = await db.QueryAsync<ProdPrograma>(sql, new { top });
@@ -98,7 +98,7 @@ namespace Montesa.ProduccionPrograma.API.Controllers
 
         private readonly IAsignacionMaquinaService _asignacion;
 
-    
+
         [HttpPost("asignar-maquina")]
         public async Task<IActionResult> AsignarMaquina([FromBody] AsignarInput body, CancellationToken ct)
         {

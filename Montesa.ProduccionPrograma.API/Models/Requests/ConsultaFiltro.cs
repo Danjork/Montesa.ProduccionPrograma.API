@@ -4,5 +4,6 @@
     public sealed class ConsultaFiltro
     {
         public string? OrdNo { get; set; }
+        public string? Tipo { get; set; }
     }
 }
